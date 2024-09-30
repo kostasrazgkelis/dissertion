@@ -1,0 +1,21 @@
+# Dockerfile
+FROM node:16 as build
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+RUN npm run build
+
+# Use NGINX to serve the React app and proxy API requests
+FROM nginx:alpine
+COPY --from=build /app/app/build /usr/share/nginx/html
+COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+CMD ["sleep", "infinity"]
+
+# CMD ["nginx", "-g", "daemon off;"]

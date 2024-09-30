@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark-master
+  template:
+    metadata:
+      labels:
+        app: spark-master
+    spec:
+      containers:
+      - name: spark-master
+        image: bitnami/spark:latest
+        ports:
+        - containerPort: 7077  # Spark master port
+        - containerPort: 8080   # Spark web UI port
+        env:
+        - name: SPARK_MODE
+          value: "master"
+        - name: SPARK_MASTER_HOST
+          value: "0.0.0.0"  # Bind to all interfaces
+        - name: SPARK_MASTER_PORT
+          value: "7077"
+        - name: SPARK_PORT_MAXRETRIES
+          value: "16"  # Increase the retry count
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "500m"
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-master
+spec:
+  selector:
+      app: spark-master
+  ports:
+    - name: spark-api    
+      port: 7077         
+      targetPort: 7077   
+    - name: spark-web    
+      port: 8080          
+      targetPort: 8080    
+  type: LoadBalancer

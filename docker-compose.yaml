@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  flask-app:
+    container_name: flask-backend
+    # image: konstantinosrazgkelisonelity/flask_backend:latest
+    build:
+      context: ./containers/flask-container
+      dockerfile: Dockerfile
+    pull_policy: always
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./containers/flask-container/app:/app  # Mount the app source code
+    environment:
+      - FLASK_ENV=development  # Set Flask to development mode to enable auto-reload
+      - FLASK_DEBUG=True
+    networks:
+      - front-back-network
+    command: ["python3", "app.py"]
+
+  front:
+    container_name: ts_frontend
+    # image: konstantinosrazgkelisonelity/ts_frontend:latest
+    build:
+      context: ./containers/front
+      dockerfile: Dockerfile.local
+    pull_policy: always
+    restart: always
+    ports:
+      - "80:80" 
+    env_file:
+      - ./containers/front/app/.env.local
+    networks:
+      - front-back-network
+    # command: ["sleep", "infinity"]
+
+networks:
+  front-back-network:
+    driver: bridge
