@@ -1,0 +1,108 @@
+day_2024_10_03:
+  details:
+    - "Connected the Spark cluster with the backend."
+    - "Can now submit jobs in the Spark cluster from the backend terminal and see the results."
+  issues:
+    issue_1:
+      description: "Executors could not see the driver, causing 'Insufficient Resources' error."
+      context: "Used client mode to create Spark job, where the driver was created in the Flask backend container."
+      probable_cause: "Executors unable to see the driver due to namespace configuration or network issues."
+      resolves:
+        resolve_1:
+          description: "In client mode, configure the driver using the driver's host IP."
+          note: "Since there are no restrictions between namespaces, this allows executors to see the driver."
+          status: "Resolved"
+        resolve_2:
+          description: "Switch to cluster mode."
+          note: "Driver is created in the cluster, potentially avoiding the same issue."
+          status: "Pending"
+  tasks:
+    task_1:
+      description: "Test the Spark cluster connection with the backend using flask API."
+      note: "Ensure that the connection is stable and can handle multiple job submissions."
+      status: "Resolved"
+    task_2:
+      description: "The executors recuire a distributed file system to access the data."
+      note: "Find a way to connect the executors to the data source."
+      status: "Pending"
+---
+day_2024_10_04:
+  details:
+    - "I also connected backend with Spark into the same namespace in order to have the same PersistentVolume."
+    - "I ran a Spark submit and it failed because there weren't any resources since no workers started."
+    - "The workers didn't start because there weren't any resources left."
+    - "Next step is to try to connect workers and run the Spark job."
+  issues:
+    issue_1:
+      description:
+        - "Create a distributed file system to connect the executors with PersistentVolume."
+        - "This will only work in single node test environment."
+        - "For multi-node, need to configure HDFS or other distributed file system."
+      context: 
+        - "Executors require access to a distributed file system to handle data efficiently."
+        - "In a single node environment, PersistentVolume can be used."
+        - "For a multi-node setup, HDFS or another distributed file system is necessary."
+      probable_cause:
+        - "Lack of a distributed file system in the current setup."
+    issue_2:
+      description:
+        - "Create correct configuration for Spark for cluster mode."
+      context: 
+        - "Spark understands that it runs in standalone mode based on the prefixes you give in the master URL."
+        - "spark:// --> standalone mode"
+        - "k8s:// --> Kubernetes mode"
+  tasks:
+    task_1:
+      description: "Find a way to share the same PersistentVolume (PV) with multiple namespaces."
+      note: "Research and implement a solution to allow multiple namespaces to access the same PV."
+      status: "Pending"
+    task_2:
+      description: "Clean the development framework."
+      note: "Remove any unnecessary files and configurations to streamline the development environment."
+      status: "Pending"
+    task_3:
+      description: "Run a Spark job from the API."
+      note: "Ensure that the Spark job can be successfully submitted and executed from the backend API."
+      status: "Resolved"
+    task_4:
+      description: "Configure Spark for cluster mode."
+      note: "Update the Spark configuration to run in cluster mode and test the job submission."
+      status: "Pending"
+---
+day_2024_10_06:
+  details:
+    - "Tries to deal with the spark job submission. Using k8s:// as the master URL."
+    - "The job submission failed and one possible reason is that kerberos is not enabled."
+    - "Further investigation is needed too see if kerberos is required or we can bypass it for now."
+    - "Maybe installing HDFS or something similar can help."
+    - "Maybe spark operator chart will help to avoid all this configuration."
+---
+day_2024_10_07:
+  details:
+    - "Installed the Spark operator chart."
+    - "The Spark operator chart is a Kubernetes operator did not work as planned."
+---
+day_2024_10_08:
+  details:
+    - "Made the spark job submission work. "
+    - "Added the  .config('spark.executorEnv.LD_PRELOAD', '/opt/bitnami/common/lib/libnss_wrapper.so')"
+    - "Spark client in k8s can work with distribution of files."
+  tasks:
+    task_1:
+      description: "Find why this works and what the configuration does."
+      note: "Determine if the configuration is necessary and what it does to enable the Spark job submission."
+      status: "Resolved"
+      resolution: 
+        - "By preloading libnss_wrapper, Spark can properly handle user and group information
+          which is particularly useful when Spark containers need to run with non-root users 
+          or when the container lacks the proper /etc/passwd or /etc/group configuration"
+        - "In Kubernetes, each pod may run under different users, and these users may not be 
+          configured in the container's user database (/etc/passwd). The nss_wrapper ensures that Spark's 
+          containerized executors can still look up user and group information, which might otherwise be unavailable."
+---
+day_2024_10_09:
+  details:
+    - "Connected the Spark cluster with the backend using API endpoints."
+    - "The Spark job can now be submitted from the backend API."
+
+    

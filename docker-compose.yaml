@@ -15,25 +15,34 @@ services:
     environment:
       - FLASK_ENV=development  # Set Flask to development mode to enable auto-reload
       - FLASK_DEBUG=True
+      - MONGO_URI=mongodb://admin:adminpassword@mongodb:27017/mydatabase
     networks:
       - front-back-network
     command: ["python3", "app.py"]
 
-  front:
-    container_name: ts_frontend
-    # image: konstantinosrazgkelisonelity/ts_frontend:latest
-    build:
-      context: ./containers/front
-      dockerfile: Dockerfile.local
-    pull_policy: always
-    restart: always
+  # front:
+  #   container_name: ts_frontend
+  #   # image: konstantinosrazgkelisonelity/ts_frontend:latest
+  #   build:
+  #     context: ./containers/front
+  #     dockerfile: Dockerfile.local
+  #   pull_policy: always
+  #   restart: always
+  #   ports:
+  #     - "80:80" 
+  #   env_file:
+  #     - ./containers/front/app/.env.local
+  #   networks:
+  #     - front-back-network
+  #   # command: ["sleep", "infinity"]
+
+  mongodb:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: adminpassword
     ports:
-      - "80:80" 
-    env_file:
-      - ./containers/front/app/.env.local
-    networks:
-      - front-back-network
-    # command: ["sleep", "infinity"]
+      - "27017:27017"
 
 networks:
   front-back-network:

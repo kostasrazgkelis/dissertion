@@ -6,8 +6,8 @@ docker build --no-cache -t konstantinosrazgkelisonelity/flask_backend:latest ./c
 
 docker push konstantinosrazgkelisonelity/flask_backend:latest
 
-docker build --no-cache -t konstantinosrazgkelisonelity/ts_frontend:latest ./containers/front
+# docker build --no-cache -t konstantinosrazgkelisonelity/ts_frontend:latest ./containers/front
 
-docker push konstantinosrazgkelisonelity/ts_frontend:latest
+# docker push konstantinosrazgkelisonelity/ts_frontend:latest
 
 # docker compose up

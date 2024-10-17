@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: spark-cluster
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: spark-cluster-quota
+  namespace: spark-cluster
+spec:
+  hard:
+    requests.cpu: "6"           # Total requested CPU across all pods in the namespace
+    requests.memory: "10Gi"      # Total requested memory across all pods in the namespace
+    limits.cpu: "6"             # Total CPU limit across all pods in the namespace
+    limits.memory: "11Gi"        # Total memory limit across all pods in the namespace
+    pods: "6"                   # Total number of pods that can be created in the namespace
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: spark-role
+  namespace: spark-cluster
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services", "configmaps", "persistentvolumeclaims"]
+    verbs: ["create", "delete", "deletecollection", "get", "list", "watch", "patch", "update"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets"]  # Added replicasets
+    verbs: ["create", "delete", "get", "list", "watch", "patch", "update"]
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["create", "delete", "get", "list", "watch", "patch", "update"]
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["create", "delete", "get", "list", "watch", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: spark-role-binding
+  namespace: spark-cluster
+subjects:
+  - kind: ServiceAccount
+    name: spark  # Service account for Spark
+    namespace: spark-cluster
+roleRef:
+  kind: Role
+  name: spark-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: spark  # Define service account for Spark
+  namespace: spark-cluster

@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: flask-backend
+  namespace: spark-cluster
   labels:
     app: flask-backend
 spec:
@@ -14,6 +15,8 @@ spec:
       labels:
         app: flask-backend
     spec:
+      priorityClassName: high-priority
+      serviceAccountName: spark
       containers:
         - name: flask-backend
           image: konstantinosrazgkelisonelity/flask_backend
@@ -21,25 +24,46 @@ spec:
           env:
             - name: FLASK_ENV
               value: "production"
-            - name: DATABASE_URL
-              value: postgres://root:example@postgres:5432/mydatabase
           resources:
             limits:
               cpu: "1"
               memory: "1Gi"
             requests:
               cpu: "0.5"
-              memory: "512Mi"
+              memory: "500Mi"
+          volumeMounts:
+            - mountPath: /data  
+              name: spark-cluster-storage 
+          # livenessProbe:
+          #   httpGet:
+          #     path: /api/
+          #     port: 8080
+          #   initialDelaySeconds: 30
+          #   periodSeconds: 10
+      volumes:
+        - name: spark-cluster-storage
+          persistentVolumeClaim:
+            claimName: spark-cluster-pvc
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: flask-backend
+  namespace: spark-cluster
   labels:
     app: flask-backend
 spec:
   selector:
     app: flask-backend
   ports:
-    - port: 8080
+    - name: http    # Name for the HTTP port
+      port: 8080
       targetPort: 8080
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: high-priority
+value: 1000000
+globalDefault: false
+description: "This priority class is for the flask-backend deployment."
