@@ -16,7 +16,6 @@ class SparkJobSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'updated_at']
 
     def to_representation(self, instance):
-        """Convert the accessible_users queryset to a list of UUIDs for serialization."""
         representation = super().to_representation(instance)
         representation['accessible_users'] = list(instance.accessible_users.values_list('id', flat=True))
         return representation

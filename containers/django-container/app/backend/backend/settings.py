@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'users_app',
-    'spark_app'
+    'spark_app',
+    'documents_app'
 ]
 
 MIDDLEWARE = [
