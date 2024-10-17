@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.12.7-slim
+FROM python:3.12.7
 
 # Install Java (for example, OpenJDK)
 RUN apt-get update && \
@@ -22,6 +22,10 @@ RUN pip install --upgrade pip
 
 # Install any needed packages specified in requirements.txt
 RUN pip install -r requirements.txt
+
+# Create /data/input and /data/output directories
+RUN mkdir -p /data/spark/input /data/spark/output && \
+    chmod -R 777 /data/spark/input /data/spark/output
 
 # Make port 5000 available to the world outside this container
 EXPOSE 8080
