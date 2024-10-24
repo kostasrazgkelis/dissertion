@@ -7,12 +7,13 @@ class SparkJobSerializer(serializers.ModelSerializer):
         queryset=User.objects.all(),
         many=True,
         write_only=True,
-        allow_empty=False
+        allow_empty=False,
+        required=False
     )
 
     class Meta:
         model = SparkJob
-        fields = ['id', 'title', 'status', 'input_data_path', 'output_folder', 'created_at', 'updated_at', 'accessible_users']
+        fields = ['id', 'title', 'status', 'matching_list', 'output_folder', 'created_at', 'updated_at', 'user_data','accessible_users']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
     def to_representation(self, instance):

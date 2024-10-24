@@ -11,12 +11,6 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     parser_classes = (MultiPartParser, FormParser)
-
-    def perform_create(self, serializer):
-        serializer.save()
-
-    def perform_update(self, serializer):
-        serializer.save()
         
     def create(self, request):
         serializer = self.get_serializer(data=request.data)
@@ -40,7 +34,8 @@ class UserViewSet(viewsets.ModelViewSet):
     def destroy(self, request, pk=None):
         user = self.get_object()
         user.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(data={"message": "The user has been deleted"},
+                        status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['post'], parser_classes=[MultiPartParser, FormParser])
     def upload_folder(self, request, pk=None):

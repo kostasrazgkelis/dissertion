@@ -3,12 +3,12 @@ import shutil
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from django.http import FileResponse, Http404
-from .packages.spark_jobs import WordCountJob
+from django.http import FileResponse
+from .packages.spark_jobs import SparkJobDissertion
 from .models import SparkJob
 from .serializers import SparkJobSerializer
-from users_app.models import User
 from backend.logger import logger
+
 
 
 class SubmitSparkJobViewSet(viewsets.ModelViewSet):
@@ -21,33 +21,39 @@ class SubmitSparkJobViewSet(viewsets.ModelViewSet):
         if not serializer.is_valid():
             return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-        spark_job = SparkJob(
-            title="SparkJob1",
-            input_data_path=serializer.validated_data['input_data_path'],
-            status='PENDING'
-        )
-        spark_job.save()    
-
-        spark_job.accessible_users.set(serializer.validated_data['accessible_users'])
-        spark_job.status = 'RUNNING'
-        spark_job.save()
-
         try:
-            spark = WordCountJob(input_data=serializer.validated_data['input_data_path'],
-                                 spark_id=str(spark_job.id))
-            spark.run()
+            spark_job = SparkJob(
+                title=serializer.validated_data['title'],
+                matching_list=serializer.validated_data['matching_list'],
+                status='PENDING'
+            )
+            spark_job.save()   
 
-            spark_job.status = 'COMPLETED'
+            spark_job.user_data = serializer.validated_data['user_data']
+            spark_job.status = 'RUNNING'
             spark_job.save()
 
-            return Response({"message": "Job completed successfully.", 
-                             "job_id": str(spark_job.id)}, status=status.HTTP_200_OK)
+            # spark = WordCountJob(input_data=serializer.validated_data['input_data_path'],
+            #                      spark_id=str(spark_job.id))
+
+            spark = SparkJobDissertion( app_name=spark_job.title,
+                                        user_data=spark_job.user_data,
+                                        matching_list=spark_job.matching_list,
+                                        spark_id=str(spark_job.id)
+                                       )
+            spark.run()
+
         except Exception as e:
             spark_job.status = 'FAILED'
             spark_job.save()
             return Response({"error": str(e), 
                              "job_id": str(spark_job.id)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            spark_job.status = 'COMPLETED'
+            spark_job.save()
 
+            return Response({"message": "Job completed successfully.", 
+                             "job_id": str(spark_job.id)}, status=status.HTTP_200_OK)
 
     def retrieve(self, request, pk=None):
         try:

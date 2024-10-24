@@ -29,4 +29,5 @@ class DocumentViewSet(viewsets.ModelViewSet):
     def destroy(self, request, pk=None):
         document = self.get_object()
         document.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(message="The document has been deleted.",
+                        status=status.HTTP_204_NO_CONTENT)

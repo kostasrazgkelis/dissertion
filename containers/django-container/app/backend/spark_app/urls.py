@@ -6,5 +6,5 @@ router = DefaultRouter()
 router.register(r'spark-jobs', SubmitSparkJobViewSet)
 
 urlpatterns = [
-    path('', include(router.urls)),  # Include the router's URLs
+    path('', include(router.urls)),
 ]

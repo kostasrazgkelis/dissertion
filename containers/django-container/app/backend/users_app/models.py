@@ -1,6 +1,8 @@
 import uuid
 from django.db import models
-
+import os
+import shutil
+from backend.settings import DOCUMENT_URL
 
 class User(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -15,3 +17,13 @@ class User(models.Model):
     
     def get_documents(self):
         return self.documents.all()
+    
+    def delete(self, *args, **kwargs):
+    
+        user_folder_path = os.path.join(DOCUMENT_URL, str(self.id))
+
+        if os.path.exists(user_folder_path):
+            shutil.rmtree(user_folder_path)
+
+        super().delete(*args, **kwargs)
+    

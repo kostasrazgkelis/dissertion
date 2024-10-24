@@ -14,6 +14,9 @@ from pathlib import Path
 import os
 from urllib.parse import urlparse
 
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -41,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
     'users_app',
     'spark_app',
     'documents_app'
@@ -139,15 +143,10 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 SPARK_URL = os.path.join(STATIC_URL, 'spark')
-SPARK_URL_INPUT = os.path.join(SPARK_URL, 'input')
-SPARK_URL_OUTPUT = os.path.join(SPARK_URL, 'output')
-
 DOCUMENT_URL = os.path.join(STATIC_URL, 'users')
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",
-    BASE_DIR / "static" / "spark" / "input",
-    BASE_DIR / "static" / "spark" / "output",
     BASE_DIR / "static" / "users"
 ]
 
