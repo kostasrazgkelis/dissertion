@@ -2,9 +2,9 @@ docker compose down
 
 docker system prune -a -f
 
-docker build --no-cache -t konstantinosrazgkelisonelity/flask_backend:latest ./containers/flask-container
+docker build --no-cache -t konstantinosrazgkelisonelity/django_backend:latest ./containers/django-container/
 
-docker push konstantinosrazgkelisonelity/flask_backend:latest
+docker push konstantinosrazgkelisonelity/django_backend:latest
 
 # docker build --no-cache -t konstantinosrazgkelisonelity/ts_frontend:latest ./containers/front
 

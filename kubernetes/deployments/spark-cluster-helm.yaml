@@ -687,7 +687,7 @@ worker:
   ##
   extraVolumeMounts:
     - name: spark-cluster-storage
-      mountPath: /data
+      mountPath: /app/app/backend/static 
   ## @param worker.extraVolumeClaimTemplates Optionally specify extra list of volumesClaimTemplates for the worker statefulset
   ##
   extraVolumeClaimTemplates: []

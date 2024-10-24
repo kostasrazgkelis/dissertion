@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-backend
+  namespace: spark-cluster
+  labels:
+    app: django-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django-backend
+  template:
+    metadata:
+      labels:
+        app: django-backend
+    spec:
+      priorityClassName: high-priority
+      serviceAccountName: spark
+      containers:
+        - name: django-backend
+          image: konstantinosrazgkelisonelity/django_backend
+          imagePullPolicy: Always
+          resources:
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+            requests:
+              cpu: "0.5"
+              memory: "500Mi"
+          volumeMounts:
+            - mountPath: /data  
+              name: spark-cluster-storage 
+          env:
+           - name: DATABASE_URL
+             value: postgres://root:example@postgres.default.svc.cluster.local:5432/mydatabase
+          command: ["python", "/app/app/backend/manage.py", "runserver", "8000"]
+          # livenessProbe:
+          #   httpGet:
+          #     path: /api/
+          #     port: 8080
+          #   initialDelaySeconds: 30
+          #   periodSeconds: 10
+      volumes:
+        - name: spark-cluster-storage
+          persistentVolumeClaim:
+            claimName: spark-cluster-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-backend
+  namespace: spark-cluster
+  labels:
+    app: django-backend
+spec:
+  selector:
+    app: django-backend
+  ports:
+    - name: http    # Name for the HTTP port
+      port: 8000
+      targetPort: 8000
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: high-priority
+value: 1000000
+globalDefault: false
+description: "This priority class is for the django-backend deployment."

@@ -26,4 +26,4 @@ RUN pip install -r requirements.txt
 # Make port 5000 available to the world outside this container
 EXPOSE 8000
 
-CMD ["python3", "/app/app/manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["python3", "/app/app/backend/manage.py", "runserver", "0.0.0.0:8000"]

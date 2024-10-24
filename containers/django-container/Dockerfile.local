@@ -17,6 +17,8 @@ WORKDIR /app
 # Copy the current directory contents into the container at /app
 COPY . /app
 
+# RUN chmod +x /app/scripts/entrypoint.sh
+
 # Upgrade pip to the latest version
 RUN pip install --upgrade pip
 
@@ -28,3 +30,4 @@ EXPOSE 8000
 
 CMD ["python3", "/app/backend/manage.py", "runserver", "0.0.0.0:8000"]
 # CMD ["bash", "-c", "sleep infinity"]
+# CMD ["/scripts/entrypoint.sh"]
