@@ -18,6 +18,14 @@ class User(models.Model):
     def get_documents(self):
         return self.documents.all()
     
+    def save(self, *args, **kwargs) -> None:
+        user_folder_path = os.path.join(DOCUMENT_URL, str(self.id))
+
+        if not os.path.exists(user_folder_path):
+            os.makedirs(user_folder_path)
+
+        super().save(*args, **kwargs)
+    
     def delete(self, *args, **kwargs):
     
         user_folder_path = os.path.join(DOCUMENT_URL, str(self.id))

@@ -10,7 +10,7 @@ class Document(models.Model):
     file_name = models.CharField(max_length=255, blank=True)
 
     def get_document_upload_path(instance, filename):
-        return os.path.join(DOCUMENT_URL, str(instance.user.id), 'documents', filename)
+        return os.path.join("users", str(instance.user.id), 'documents', filename)
 
     file = models.FileField(upload_to=get_document_upload_path, 
                             validators=[FileExtensionValidator(allowed_extensions=['csv'])])

@@ -17,7 +17,7 @@ spec:
     pods: "6"                   # Total number of pods that can be created in the namespace
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: ClusterRole
 metadata:
   name: spark-role
   namespace: spark-cluster
@@ -26,7 +26,7 @@ rules:
     resources: ["pods", "services", "configmaps", "persistentvolumeclaims"]
     verbs: ["create", "delete", "deletecollection", "get", "list", "watch", "patch", "update"]
   - apiGroups: ["apps"]
-    resources: ["deployments", "replicasets"]  # Added replicasets
+    resources: ["deployments", "replicasets"]
     verbs: ["create", "delete", "get", "list", "watch", "patch", "update"]
   - apiGroups: ["batch"]
     resources: ["jobs"]
@@ -36,21 +36,20 @@ rules:
     verbs: ["create", "delete", "get", "list", "watch", "patch", "update"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
   name: spark-role-binding
-  namespace: spark-cluster
 subjects:
   - kind: ServiceAccount
-    name: spark  # Service account for Spark
+    name: spark
     namespace: spark-cluster
 roleRef:
-  kind: Role
+  kind: ClusterRole
   name: spark-role
   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: spark  # Define service account for Spark
+  name: spark 
   namespace: spark-cluster

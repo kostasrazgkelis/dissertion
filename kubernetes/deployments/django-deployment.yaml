@@ -19,7 +19,7 @@ spec:
       serviceAccountName: spark
       containers:
         - name: django-backend
-          image: konstantinosrazgkelisonelity/django_backend
+          image: kostasrazgkelis/django_backend
           imagePullPolicy: Always
           resources:
             limits:
@@ -29,11 +29,11 @@ spec:
               cpu: "0.5"
               memory: "500Mi"
           volumeMounts:
-            - mountPath: /data  
-              name: spark-cluster-storage 
+            - mountPath: /app/app/backend/media
+              name: spark-cluster-storage
           env:
-           - name: DATABASE_URL
-             value: postgres://root:example@postgres.default.svc.cluster.local:5432/mydatabase
+            - name: DATABASE_URL
+              value: postgres://root:example@postgres.default.svc.cluster.local:5432/mydatabase
           command: ["python", "/app/app/backend/manage.py", "runserver", "8000"]
           # livenessProbe:
           #   httpGet:
@@ -45,6 +45,7 @@ spec:
         - name: spark-cluster-storage
           persistentVolumeClaim:
             claimName: spark-cluster-pvc
+
 ---
 apiVersion: v1
 kind: Service
@@ -57,7 +58,7 @@ spec:
   selector:
     app: django-backend
   ports:
-    - name: http    # Name for the HTTP port
+    - name: http # Name for the HTTP port
       port: 8000
       targetPort: 8000
 ---

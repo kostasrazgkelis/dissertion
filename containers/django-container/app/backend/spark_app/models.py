@@ -38,7 +38,7 @@ class SparkJob(models.Model):
             parent_folder = os.path.dirname(self.output_folder)
             if os.path.exists(parent_folder):
                 shutil.rmtree(parent_folder)
-
+        
         super().delete(*args, **kwargs)
 
     def save(self, *args, **kwargs):

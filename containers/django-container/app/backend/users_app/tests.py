@@ -8,15 +8,15 @@ from spark_app.models import SparkJob
 import os
 from backend.logger import logger
 
-DOCUMENT_PATH = os.path.join("users_app", "data")
+TEST_DOCUMENT_PATH = os.path.join("users_app", "data")
 
 class UserUploadFolderTestCase(APITestCase):
 
     def setUp(self):
         self.user1 = User.objects.create(first_name="Alice", last_name="Doe")
         self.user2 = User.objects.create(first_name="Bob", last_name="Doe")
-        self.path1 = os.path.join(DOCUMENT_PATH, "A_cleaned_1.csv")
-        self.path2 = os.path.join(DOCUMENT_PATH, "A_cleaned_2.csv")
+        self.path1 = os.path.join(TEST_DOCUMENT_PATH, "A_cleaned_1.csv")
+        self.path2 = os.path.join(TEST_DOCUMENT_PATH, "A_cleaned_2.csv")
         with open(self.path1, 'rb') as file1, open(self.path2, 'rb') as file2:
             self.document_stream_1 = SimpleUploadedFile('A_cleaned_1.csv', file1.read(), content_type="text/csv")
             self.document_stream_2 = SimpleUploadedFile('A_cleaned_2.csv', file2.read(), content_type="text/csv")

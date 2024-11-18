@@ -1,5 +1,5 @@
 from pyspark.sql import Row, SparkSession, DataFrame
-from backend.settings import SPARK_URL
+from backend.settings import MEDIA_ROOT, SPARK_URL
 import os
 from documents_app.models import Document
 import socket
@@ -30,14 +30,14 @@ class SparkJobLocal:
             .config("spark.kubernetes.driver.label.sidecar.istio.io/injec", "false") \
             .config("spark.kubernetes.driver.request.cores", "100m") \
             .config("spark.kubernetes.driver.request.memory", "100m") \
-            .config("spark.kubernetes.driver.volumes.persistentVolumeClaim.spark-cluster-pvc.mount.path", "/app/app/backend/static/spark") \
+            .config("spark.kubernetes.driver.volumes.persistentVolumeClaim.spark-cluster-pvc.mount.path", MEDIA_ROOT) \
             .config("spark.kubernetes.driver.volumes.persistentVolumeClaim.spark-cluster-pvc.options.claimName", "spark-cluster-pvc") \
             .config("spark.kubernetes.authenticate.driver.serviceAccountName", "spark") \
             .config("spark.kubernetes.authenticate.executor.serviceAccountName", "spark") \
             .config("spark.kubernetes.namespace", "spark-cluster") \
             .config("spark.kubernetes.container.image", "docker.io/bitnami/spark:3.5.3-debian-12-r0") \
             .config("spark.kubernetes.container.image.pullPolicy", "IfNotPresent") \
-            .config("spark.kubernetes.executor.volumes.persistentVolumeClaim.spark-cluster-pvc.mount.path", "/app/app/backend/static/spark") \
+            .config("spark.kubernetes.executor.volumes.persistentVolumeClaim.spark-cluster-pvc.mount.path", MEDIA_ROOT) \
             .config("spark.kubernetes.executor.volumes.persistentVolumeClaim.spark-cluster-pvc.options.claimName", "spark-cluster-pvc") \
             .config("spark.kubernetes.allocation.batch.size", "5") \
             .config("spark.kubernetes.maxPendingPods", "5") \
@@ -104,6 +104,7 @@ class SparkJobDissertion(SparkJobLocal):
     def run(self):
         try:
             self.start_spark_cluster()
+            # self.start_spark()
 
             df_list = []
             for _, user_file_pair in enumerate(self.user_data):
@@ -113,7 +114,9 @@ class SparkJobDissertion(SparkJobLocal):
                 if not document:
                     raise Exception(f"Document with id {file_id} not found.")
                 
-                df = self.spark.read.csv(str(document.file), header=None) 
+                file_path: str = os.path.join(MEDIA_ROOT, str(document.file))
+
+                df = self.spark.read.csv(file_path, header=None) 
                 df_list.append(df)
 
             if not df_list:
@@ -132,8 +135,9 @@ class SparkJobDissertion(SparkJobLocal):
             
             for df in df_list[1:]:
                 final_df = final_df.join(df, on=join_columns, how='inner')
-
-            final_df.write.csv(self.output_data, header=True, mode="overwrite")
+            
+            final_df.toPandas().to_csv(os.path.join(self.output_data, "results.csv"), index=False)
+            # final_df.write.csv(self.output_data, header=True, mode="overwrite")
 
         except Exception as e:
             self.handle_exception(e)

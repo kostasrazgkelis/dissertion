@@ -8,4 +8,4 @@ spec:
   accessModes:
     - ReadWriteMany  # Access mode
   hostPath:
-    path: /mnt/app/app/backend/static  # Path on the host
+    path: /app/app/backend/media  # Path on the host
